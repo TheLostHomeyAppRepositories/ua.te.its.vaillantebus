@@ -23,5 +23,10 @@
     "en": "More reliable reading over Wi-Fi: the adapter connection retries quickly after an eBUS collision and logs only real failures.",
     "ru": "Надёжнее чтение по Wi-Fi: при коллизии на шине eBUS запрос быстро повторяется, в журнал попадают только настоящие сбои.",
     "uk": "Надійніше читання по Wi-Fi: при колізії на шині eBUS запит швидко повторюється, у журнал потрапляють лише справжні збої."
+  },
+  "0.4.3": {
+    "en": "Fewer eBUS collisions: a stale bus sync symbol is no longer mistaken for the echo of a sent byte.",
+    "ru": "Меньше коллизий eBUS: устаревший символ синхронизации шины больше не принимается за эхо отправленного байта.",
+    "uk": "Менше колізій eBUS: застарілий символ синхронізації шини більше не сприймається як луна надісланого байта."
   }
 }
