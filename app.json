@@ -1,6 +1,6 @@
 {
   "id": "ua.te.its.vaillantebus",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "compatibility": ">=12.0.0",
   "sdk": 3,
   "platforms": [

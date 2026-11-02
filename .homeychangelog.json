@@ -18,5 +18,10 @@
     "en": "Room temperature, outdoor temperature and zone valves are now passed to the boiler with Flow action cards instead of the app settings page. If you used room sensors or zone valves, add a Flow for each and set the number of zone valves in the device settings. New device icon and store images.",
     "ru": "Температура в комнате, уличная температура и клапаны зон теперь передаются котлу карточками действий Flow вместо страницы настроек приложения. Если вы использовали комнатные датчики или клапаны зон, создайте для каждого Flow и укажите количество клапанов в настройках устройства. Новый значок устройства и изображения.",
     "uk": "Температура в кімнаті, вулична температура й клапани зон тепер передаються котлу картками дій Flow замість сторінки налаштувань застосунку. Якщо ви використовували кімнатні датчики чи клапани зон, створіть для кожного Flow і вкажіть кількість клапанів у налаштуваннях пристрою. Новий значок пристрою та зображення."
+  },
+  "0.4.2": {
+    "en": "More reliable reading over Wi-Fi: the adapter connection retries quickly after an eBUS collision and logs only real failures.",
+    "ru": "Надёжнее чтение по Wi-Fi: при коллизии на шине eBUS запрос быстро повторяется, в журнал попадают только настоящие сбои.",
+    "uk": "Надійніше читання по Wi-Fi: при колізії на шині eBUS запит швидко повторюється, у журнал потрапляють лише справжні збої."
   }
 }

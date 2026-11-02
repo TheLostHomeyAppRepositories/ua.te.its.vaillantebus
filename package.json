@@ -1,6 +1,6 @@
 {
   "name": "ua.te.its.vaillantebus",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Vaillant boiler (eBUS) app for Homey Pro",
   "main": "app.js",
   "author": "vova275 <vova275@gmail.com>",
