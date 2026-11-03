@@ -182,6 +182,15 @@ class BoilerDevice extends Homey.Device {
     await this._set('measure_modulation', st.modulation);
     await this._set('flame_on', st.flame);
     await this._set('hwc_demand', st.hwcDemand);
+    // Without bus control the app makes no heat request of its own, so show what the
+    // boiler does: burner on and not for hot water = heating (its own panel/curve).
+    if (!this._t.control && st.flame !== undefined && st.hwcDemand !== undefined) {
+      await this._set('heating_active', st.flame && !st.hwcDemand);
+    }
+    if (st.state !== undefined && st.state !== this._lastState) {
+      this.log(`boiler state ${this._lastState ?? '-'} -> ${st.state} (flame ${st.flame}, hwc ${st.hwcDemand})`);
+      this._lastState = st.state;
+    }
 
     // gas estimate, integrated between polls (a gap longer than 5 min is not counted)
     const now = Date.now();
@@ -356,7 +365,6 @@ class BoilerDevice extends Homey.Device {
     await this._show();
     // off: just stop re-sending; the boiler keeps the last value until its panel is used
     if (on) await this.control();
-    else await this._set('heating_active', null);
     this.homey.setTimeout(() => this.poll(), 3000);
   }
 
