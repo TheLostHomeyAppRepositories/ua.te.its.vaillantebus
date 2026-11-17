@@ -114,6 +114,7 @@ class BoilerDevice extends Homey.Device {
       this.failures = 0;
       if (!this.getAvailable()) await this.setAvailable();
       await this._apply(st);
+      this._watch(st);
     } catch (err) {
       this.failures++;
       this.log('poll failed:', err.message);
@@ -122,6 +123,31 @@ class BoilerDevice extends Homey.Device {
       this.polling = false;
     }
     await this._readSensors();
+  }
+
+  /**
+   * Diagnostics (GitHub #1, "stops reporting data until the app is restarted"):
+   * the readings go to the log every 4 minutes, so a diagnostics report shows
+   * whether they really freeze; if none of them has changed for an hour the app
+   * reconnects to the adapter, which is what a manual restart did.
+   */
+  _watch(st) {
+    const now = Date.now();
+    const keys = ['flowTemp', 'returnTemp', 'hwcTemp', 'pressure', 'modulation', 'flame'];
+    const sig = keys.map((k) => (st[k] === undefined ? '?' : String(st[k]))).join('|');
+    if (sig !== this._valSig) { this._valSig = sig; this._valSince = now; }
+    if (!this._valLogAt || now - this._valLogAt >= 240e3) {
+      this._valLogAt = now;
+      const v = (x, unit = '') => (x == null ? '-' : `${x}${unit}`);
+      this.log(`values: flow ${v(st.flowTemp, '°')} return ${v(st.returnTemp, '°')} hwc ${v(st.hwcTemp, '°')} `
+        + `pressure ${v(st.pressure, ' bar')} flame ${v(st.flame)} modulation ${v(st.modulation, '%')}; `
+        + `unchanged for ${Math.round((now - this._valSince) / 60e3)} min`);
+    }
+    if (now - this._valSince >= 60 * 60e3) {
+      this.log(`watchdog: boiler readings unchanged for 60 min (${sig}), reconnecting to the adapter`);
+      this._valSince = now;
+      this.homey.setTimeout(() => this._connect(), 100);
+    }
   }
 
   /** Room and outdoor temperature: what the user's Flows reported, else the weather. */
