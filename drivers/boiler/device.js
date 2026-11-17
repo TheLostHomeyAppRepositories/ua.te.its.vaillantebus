@@ -80,6 +80,8 @@ class BoilerDevice extends Homey.Device {
     this.homey.clearInterval(this.controlTimer);
     const s = this.getSettings();
     this.pollTimer = this.homey.setInterval(() => this.poll(), s.poll_interval * 1000);
+    this.homey.clearInterval(this.aliveTimer);
+    this.aliveTimer = this.homey.setInterval(() => this._checkAlive(), 30e3);
     this.controlTimer = this.homey.setInterval(() => this.control(), s.control_interval * 1000);
     this.poll();
   }
@@ -107,11 +109,17 @@ class BoilerDevice extends Homey.Device {
 
   async poll() {
     if (this.polling) return;
+    // Generation: a poll the liveness watchdog gave up on must not clear the flag
+    // of the poll that runs after the reconnect.
+    const gen = (this._pollGen = (this._pollGen || 0) + 1);
     this.polling = true;
+    this._pollStartedAt = Date.now();
+    this._pollStage = 'reading the boiler';
     try {
       const st = await this.boiler.poll();
       if (st.flowTemp === undefined && st.pressure === undefined) throw new Error('no answers from boiler');
       this.failures = 0;
+      this._pollStage = 'updating Homey';
       if (!this.getAvailable()) await this.setAvailable();
       await this._apply(st);
       this._watch(st);
@@ -120,9 +128,28 @@ class BoilerDevice extends Homey.Device {
       this.log('poll failed:', err.message);
       if (this.failures >= 3) await this.setUnavailable(err.message).catch(this.error);
     } finally {
-      this.polling = false;
+      if (gen === this._pollGen) {
+        this.polling = false;
+        this._pollStartedAt = null;
+      }
     }
-    await this._readSensors();
+    if (gen === this._pollGen) await this._readSensors();
+  }
+
+  /**
+   * Liveness watchdog (GitHub #1): the app used to go silent for hours — no poll
+   * finished, nothing in the log — until it was restarted. Runs on its own timer,
+   * so it fires even when a poll never returns.
+   */
+  _checkAlive() {
+    if (!this.polling || !this._pollStartedAt) return;
+    const s = Math.round((Date.now() - this._pollStartedAt) / 1000);
+    if (s < 120) return;
+    this.log(`watchdog: poll stuck for ${s} s while ${this._pollStage}, reconnecting to the adapter`);
+    this._pollGen++;
+    this.polling = false;
+    this._pollStartedAt = null;
+    this._connect();
   }
 
   /**
@@ -414,6 +441,7 @@ class BoilerDevice extends Homey.Device {
   }
 
   async onUninit() {
+    this.homey.clearInterval(this.aliveTimer);
     this.homey.clearInterval(this.pollTimer);
     this.homey.clearInterval(this.controlTimer);
     this.homey.clearTimeout(this.valveTimer);
