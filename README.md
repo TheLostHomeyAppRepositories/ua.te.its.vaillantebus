@@ -2,6 +2,8 @@
 
 Local monitoring and control of Vaillant boilers (BAI burner control: ecoTEC, turboTEC, atmoTEC …) over eBUS — no cloud.
 
+[☕ Support the project](#support)
+
 Tested with **Vaillant BAI00, SW 0403 / HW 0903** (no room controller on the bus).
 
 ## What it does
@@ -61,6 +63,14 @@ homey app run                                # run on your Homey Pro
 ```
 
 Message definitions are taken from [ebusd-configuration](https://github.com/john30/ebusd-configuration) (`vaillant/08.bai.csv`).
+
+## Support
+
+If this app keeps your boiler in check, you can buy me a coffee 💛
+
+[![Support via Monobank](https://img.shields.io/badge/☕_Buy_me_a_coffee-Monobank-000000?style=for-the-badge)](https://send.monobank.ua/jar/7Zv7oTCnWc)
+
+Any Visa / Mastercard, Apple Pay or Google Pay works, from any country.
 
 ## License
 
